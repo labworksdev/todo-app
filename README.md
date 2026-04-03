@@ -36,26 +36,60 @@ docker run -p 8000:8000 todo-app
 
 Open http://localhost:8000
 
-## Deploy to Azure
+## CI/CD Pipeline
+
+Deployment is fully automated via GitHub Actions:
+
+- **On pull request** → builds, lints, runs tests (`.github/workflows/ci.yml`)
+- **On merge to main** → builds Docker image, pushes to ACR, deploys to Azure Container Apps (`.github/workflows/deploy.yml`)
+
+No manual deploy needed. Merge a PR and the live app updates in ~1 minute.
+
+### Manual Deploy (if needed)
 
 ```bash
-# Build image in ACR and update the live app
 ./scripts/deploy.sh
 ```
 
-Requires Azure CLI logged in with access to the `rg-todo-app` resource group.
+## Infrastructure
+
+All Azure infrastructure is defined in Terraform under `infra/`.
+
+```bash
+cd infra
+terraform init
+terraform plan
+terraform apply
+```
+
+Resources created:
+- **Resource Group** (`rg-todo-app`)
+- **Azure Container Registry** (`labworksacr`)
+- **Container Apps Environment** (`cae-todo-app`)
+- **Container App** (`todo-app`) — public HTTPS endpoint
+- **Log Analytics Workspace** — for logs and monitoring
+
+Teardown: `terraform destroy`
 
 ## Project Structure
 
 ```
-├── app.py                  # Flask application
+├── app.py                    # Flask application
 ├── templates/
-│   └── index.html          # HTML template
-├── requirements.txt        # Python dependencies
-├── Dockerfile              # Container image
+│   └── index.html            # HTML template
+├── requirements.txt          # Python dependencies
+├── Dockerfile                # Container image
+├── infra/                    # Terraform infrastructure
+│   ├── main.tf               # ACR, Container Apps, networking
+│   ├── variables.tf          # Configurable inputs
+│   ├── outputs.tf            # App URL, ACR details
+│   └── terraform.tfvars      # Environment values
+├── .github/workflows/
+│   ├── ci.yml                # PR validation (build + test)
+│   └── deploy.yml            # Auto-deploy on merge to main
 ├── scripts/
-│   ├── deploy.sh           # Deploy to Azure Container Apps
-│   └── dev-docker.sh       # Run locally with Docker
+│   ├── deploy.sh             # Manual deploy to Azure
+│   └── dev-docker.sh         # Run locally with Docker
 ├── docs/
 │   └── WORKSHOP-FEATURES.md  # Full feature backlog
 └── README.md
