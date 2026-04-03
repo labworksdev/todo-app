@@ -2,6 +2,10 @@
 
 A simple Python/Flask to-do application for the PSEA Agentic Coding Workshop.
 
+## Live App
+
+**https://todo-app.happysmoke-64bbe2ef.eastus.azurecontainerapps.io/**
+
 ## Local Development
 
 ```bash
@@ -22,32 +26,43 @@ Open http://localhost:5000
 ## Docker
 
 ```bash
-# Build
-docker build -t todo-app .
+# Build and run locally
+./scripts/dev-docker.sh
 
-# Run
+# Or manually:
+docker build -t todo-app .
 docker run -p 8000:8000 todo-app
 ```
 
 Open http://localhost:8000
 
+## Deploy to Azure
+
+```bash
+# Build image in ACR and update the live app
+./scripts/deploy.sh
+```
+
+Requires Azure CLI logged in with access to the `rg-todo-app` resource group.
+
 ## Project Structure
 
 ```
-├── app.py              # Flask application
+├── app.py                  # Flask application
 ├── templates/
-│   └── index.html      # HTML template
-├── requirements.txt    # Python dependencies
-├── Dockerfile          # Container image
+│   └── index.html          # HTML template
+├── requirements.txt        # Python dependencies
+├── Dockerfile              # Container image
+├── scripts/
+│   ├── deploy.sh           # Deploy to Azure Container Apps
+│   └── dev-docker.sh       # Run locally with Docker
+├── docs/
+│   └── WORKSHOP-FEATURES.md  # Full feature backlog
 └── README.md
 ```
 
-## Workshop Exercises
+## Workshop
 
-This is the starter app. During the workshop, you'll use Claude Code to:
+See [docs/WORKSHOP-FEATURES.md](docs/WORKSHOP-FEATURES.md) for the full feature backlog.
 
-1. **Add features** — due dates, priorities, categories
-2. **Improve the UI** — better styling, responsive design, dark mode
-3. **Add an API** — REST endpoints for the todo operations
-4. **Write tests** — unit tests and integration tests
-5. **Deploy to Azure** — containerize and deploy to Azure Web Apps
+This app starts as a bare-bones ugly todo list. Your mission: use agentic coding to evolve it into a polished agile project management tool.
