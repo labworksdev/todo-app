@@ -1,0 +1,38 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Build & Deploy to Azure
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Log in to ACR
+        run: |
+          echo ${{ secrets.ACR_PASSWORD }} | docker login labworksacr.azurecr.io \
+            --username ${{ secrets.ACR_USERNAME }} \
+            --password-stdin
+
+      - name: Build and push image
+        run: |
+          docker build -t labworksacr.azurecr.io/todo-app:${{ github.sha }} \
+                       -t labworksacr.azurecr.io/todo-app:latest .
+          docker push labworksacr.azurecr.io/todo-app:${{ github.sha }}
+          docker push labworksacr.azurecr.io/todo-app:latest
+
+      - name: Deploy to Container Apps
+        run: |
+          az containerapp update \
+            --name todo-app \
+            --resource-group rg-todo-app \
+            --image labworksacr.azurecr.io/todo-app:${{ github.sha }}
