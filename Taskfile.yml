@@ -147,8 +147,9 @@ tasks:
       - docker tag {{.IMAGE_NAME}}:latest {{.ACR_IMAGE}}:{{.IMAGE_TAG}}
       # Push to ACR
       - docker push {{.ACR_IMAGE}}:{{.IMAGE_TAG}}
-      # Verify image exists in ACR
-      - az acr repository show-tags --name {{.ACR_NAME}} --repository todo-app --filter "{{.IMAGE_TAG}}" --output tsv | grep -q "{{.IMAGE_TAG}}"
+      # Verify image exists in ACR (brief delay for ACR to index the tag)
+      - sleep 0.5
+      - az acr repository show-tags --name {{.ACR_NAME}} --repository todo-app --output tsv | grep -qF "{{.IMAGE_TAG}}"
 
   deploy:
     desc: Deploy the container image to Azure Container Apps
@@ -160,7 +161,7 @@ tasks:
       APP_NAME: '{{.APP_NAME | default "todo-app"}}'
     cmds:
       # Verify image exists in ACR before deploying
-      - az acr repository show-tags --name {{.ACR_NAME}} --repository todo-app --filter "{{.IMAGE_TAG}}" --output tsv | grep -q "{{.IMAGE_TAG}}"
+      - az acr repository show-tags --name {{.ACR_NAME}} --repository todo-app --output tsv | grep -qF "{{.IMAGE_TAG}}"
       - |
         az containerapp update \
           --name {{.APP_NAME}} \
