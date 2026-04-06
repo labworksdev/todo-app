@@ -40,6 +40,8 @@ jobs:
             --password-stdin
       - name: Build image
         run: task -v build
+      - name: Verify image exists
+        run: docker image inspect labworksdev/todo-app:latest > /dev/null
       - name: Tag and push to ACR
         run: |
           docker tag labworksdev/todo-app:latest labworksacr.azurecr.io/todo-app:${{ github.sha }}
