@@ -18,6 +18,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
       uv sync --frozen --no-install-project ${extras}
 
 COPY "./src/todo_app" "/app/todo_app"
+COPY "./src/templates" "/app/templates"
 COPY "./src/main.py" "/app/main.py"
 
 # Install the project with the project included
@@ -44,11 +45,14 @@ ENV PATH="/app/.venv/bin:$PATH"
 
 WORKDIR "/app"
 
+# Create app user before COPY so --chown resolves correctly
+RUN groupadd -r app && useradd -r -g app app
+
 # Copy the virtual environment from builder
 COPY --from=builder --chown=app:app /app /app
 
-# Create app user
-RUN groupadd -r app && useradd -r -g app app
+# Ensure app user can write to /app (WORKDIR creates it as root)
+RUN chown app:app /app
 
 # Metadata
 ARG NAME="todo_app"
@@ -69,6 +73,8 @@ LABEL org.opencontainers.image.url="https://github.com/labworksdev/todo_app"
 LABEL org.opencontainers.image.source="https://github.com/labworksdev/todo_app/tree/${COMMIT_HASH}"
 LABEL org.opencontainers.image.revision="${COMMIT_HASH}"
 LABEL org.opencontainers.image.licenses="NONE"
+
+EXPOSE 8000
 
 USER app
 

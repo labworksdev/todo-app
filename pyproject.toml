@@ -5,7 +5,10 @@ description = "An application for managing TODOs"
 authors = [
     { name = "Labworks", email = "Python@labworks.dev" }
 ]
-dependencies = []
+dependencies = [
+    "flask>=3.1,<4",
+    "gunicorn>=23,<24",
+]
 readme = "README.md"
 requires-python = ">=3.13"
 

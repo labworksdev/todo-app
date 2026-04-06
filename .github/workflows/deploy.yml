@@ -1,0 +1,54 @@
+---
+name: Deploy
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main]
+
+env:
+  python_version: "3.13"
+
+defaults:
+  run:
+    shell: 'bash --noprofile --norc -Eeuo pipefail {0}'
+
+jobs:
+  deploy:
+    name: Build & Deploy to Azure
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: 'false'
+      - name: Bootstrap repository
+        uses: ./.github/actions/bootstrap
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          python-version: ${{ env.python_version }}
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Log in to ACR
+        run: |
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login labworksacr.azurecr.io \
+            --username "${{ secrets.ACR_USERNAME }}" \
+            --password-stdin
+      - name: Build image
+        run: task -v build
+      - name: Distribute image to ACR
+        run: task -v distribute
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+      - name: Distribute latest tag to ACR
+        run: task -v distribute
+        env:
+          IMAGE_TAG: latest
+      - name: Deploy to Container Apps
+        run: task -v deploy
+        env:
+          IMAGE_TAG: ${{ github.sha }}
