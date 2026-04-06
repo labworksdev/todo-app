@@ -159,6 +159,8 @@ tasks:
       RESOURCE_GROUP: '{{.RESOURCE_GROUP | default "rg-todo-app"}}'
       APP_NAME: '{{.APP_NAME | default "todo-app"}}'
     cmds:
+      # Verify image exists in ACR before deploying
+      - az acr repository show-tags --name {{.ACR_NAME}} --repository todo-app --filter "{{.IMAGE_TAG}}" --output tsv | grep -q "{{.IMAGE_TAG}}"
       - |
         az containerapp update \
           --name {{.APP_NAME}} \
