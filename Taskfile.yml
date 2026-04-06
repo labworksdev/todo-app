@@ -134,6 +134,13 @@ tasks:
         See {{.OUTPUT_FILE}} for the OCI artifact."
         {{end}}
 
+  start:
+    desc: Build and run the Docker container locally
+    cmds:
+      - task: build
+      - echo "Starting todo-app on http://localhost:8000"
+      - docker run --rm -p 8000:8000 {{.IMAGE_NAME}}:latest
+
   test:
     desc: Run the project tests
     deps: ["coverage-erase"]

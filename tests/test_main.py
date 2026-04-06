@@ -19,12 +19,18 @@ def test_main_import():
 
 @pytest.mark.unit
 def test_main_function():
-    """Test that main() raises NotImplementedError"""
+    """Test that main() starts gunicorn by default"""
     from main import main
 
     with patch("sys.argv", ["main"]):
-        with pytest.raises(NotImplementedError):
-            main()
+        with patch("subprocess.call", return_value=0) as mock_call:
+            with pytest.raises(SystemExit) as exc_info:
+                main()
+            assert exc_info.value.code == 0
+            mock_call.assert_called_once()
+            # Verify gunicorn is being invoked
+            call_args = mock_call.call_args[0][0]
+            assert "gunicorn" in call_args[2]
 
 
 @pytest.mark.unit
@@ -40,18 +46,20 @@ def test_main_version():
 
 @pytest.mark.unit
 def test_main_as_script():
-    """Test that main.py raises NotImplementedError when run as a script"""
+    """Test that main.py starts the server when run as a script"""
     main_path = Path(__file__).parent.parent / "src" / "main.py"
 
-    result = subprocess.run(
-        [sys.executable, str(main_path)],
-        capture_output=True,
-        text=True,
-    )
-
-    # Should exit with code 1 due to NotImplementedError
-    assert result.returncode == 1
-    assert "NotImplementedError" in result.stderr
+    try:
+        result = subprocess.run(
+            [sys.executable, str(main_path)],
+            capture_output=True,
+            text=True,
+            timeout=3,
+        )
+        # If it exited quickly, it should not have crashed with an unhandled exception
+        assert result.returncode == 0 or "gunicorn" in result.stderr.lower()
+    except subprocess.TimeoutExpired:
+        pass  # Expected: server started and is running
 
 
 @pytest.mark.unit

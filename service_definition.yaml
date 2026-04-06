@@ -23,8 +23,8 @@ publish:
     infrastructure: []  # List of publish-time infrastructure dependencies
     service: []  # List of publish-time service dependencies
 deploy:
-  deploy_type: none  # Options: sam, opentofu, cloudformation, kubernetes, helm, terraform, ansible, none
-  environments: []  # Options: development, testing, staging, production, sandbox, qa, uat, demo, dr
+  deploy_type: terraform  # Options: sam, opentofu, cloudformation, kubernetes, helm, terraform, ansible, none
+  environments: [development]  # Options: development, testing, staging, production, sandbox, qa, uat, demo, dr
   depends_on:  # Optional: Dependencies for deployment
     infrastructure: []  # List of deploy-time infrastructure dependencies
     service: []  # List of deploy-time service dependencies

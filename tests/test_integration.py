@@ -128,18 +128,21 @@ def test_docker_image():
             cwd=project_root,
         )
 
-        # Test basic docker run without arguments (should raise NotImplementedError)
-        process = subprocess.run(
-            ["docker", "run", "--rm", f"{image_name}:latest"],
-            capture_output=True,
-            cwd=project_root,
-        )
-        assert process.returncode == 1, (
-            f"Expected exit code 1, got: {process.returncode}"
-        )
-        assert "NotImplementedError" in process.stderr.decode(), (
-            f"Expected NotImplementedError in stderr, got: {process.stderr.decode()}"
-        )
+        # Test basic docker run without arguments (should start the server)
+        try:
+            process = subprocess.run(
+                ["docker", "run", "--rm", f"{image_name}:latest"],
+                capture_output=True,
+                cwd=project_root,
+                timeout=5,
+            )
+            # If it exited, it should not have crashed
+            assert process.returncode == 0, (
+                f"Expected exit code 0, got: {process.returncode}\n"
+                f"stderr: {process.stderr.decode()}"
+            )
+        except subprocess.TimeoutExpired:
+            pass  # Expected: server started successfully
 
         # Test that mutually exclusive arguments fail appropriately
         command = [

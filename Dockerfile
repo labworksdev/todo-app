@@ -18,6 +18,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
       uv sync --frozen --no-install-project ${extras}
 
 COPY "./src/todo_app" "/app/todo_app"
+COPY "./src/templates" "/app/templates"
 COPY "./src/main.py" "/app/main.py"
 
 # Install the project with the project included
@@ -69,6 +70,8 @@ LABEL org.opencontainers.image.url="https://github.com/labworksdev/todo_app"
 LABEL org.opencontainers.image.source="https://github.com/labworksdev/todo_app/tree/${COMMIT_HASH}"
 LABEL org.opencontainers.image.revision="${COMMIT_HASH}"
 LABEL org.opencontainers.image.licenses="NONE"
+
+EXPOSE 8000
 
 USER app
 
