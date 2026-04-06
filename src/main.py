@@ -33,7 +33,7 @@ def main():
     if args.dev:
         from todo_app.app import app
 
-        app.run(host="0.0.0.0", port=port, debug=True)
+        app.run(host="0.0.0.0", port=port, debug=args.dev)
     else:
         sys.exit(
             subprocess.call(

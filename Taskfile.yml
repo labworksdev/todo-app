@@ -169,11 +169,11 @@ tasks:
           --output table
 
   start:
-    desc: Build and run the Docker container locally
+    desc: Build and run the Docker container locally in dev mode
     cmds:
       - task: build
-      - echo "Starting todo-app on http://localhost:8000"
-      - docker run --rm -p 8000:8000 {{.IMAGE_NAME}}:latest
+      - echo "Starting todo-app on http://localhost:8000 (dev mode)"
+      - docker run --rm -p 8000:8000 {{.IMAGE_NAME}}:latest --dev
 
   test:
     desc: Run the project tests
