@@ -1,0 +1,25 @@
+description: An application for managing TODOs
+name: todo_app
+origin:
+  generated: true
+  template:
+    branch: unknown
+    commit hash: unknown
+    cookiecutter:
+      _checkout: null
+      _repo_dir: /Users/jonzeolla/.cookiecutters/ai-native-python
+      _template: git+ssh://git@github.com/zenable-io/ai-native-python.git
+      company_domain: labworks.dev
+      company_name: Labworks
+      dockerhub: 'no'
+      github_org: labworksdev
+      license: NONE
+      project_name: todo-app
+      project_owner_github_username: jonzeolla
+      project_short_description: An application for managing TODOs
+      project_slug: todo_app
+      public: 'yes'
+      python_version: '3.13'
+    dirty: false
+    location: /Users/jonzeolla/src/labworksdev/git+ssh:/git@github.com/zenable-io/ai-native-python.git
+  timestamp: '2026-04-06T20:38:16+00:00'
