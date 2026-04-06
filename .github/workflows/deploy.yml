@@ -40,19 +40,15 @@ jobs:
             --password-stdin
       - name: Build image
         run: task -v build
-      - name: Verify image exists
-        run: docker image inspect labworksdev/todo-app:latest > /dev/null
-      - name: Tag and push to ACR
-        run: |
-          docker tag labworksdev/todo-app:latest labworksacr.azurecr.io/todo-app:${{ github.sha }}
-          docker tag labworksdev/todo-app:latest labworksacr.azurecr.io/todo-app:latest
-          docker push labworksacr.azurecr.io/todo-app:${{ github.sha }}
-          docker push labworksacr.azurecr.io/todo-app:latest
-      - name: Verify image in ACR
-        run: az acr repository show-tags --name labworksacr --repository todo-app --filter "${{ github.sha }}" --output tsv | grep -q "${{ github.sha }}"
+      - name: Distribute image to ACR
+        run: task -v distribute
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+      - name: Distribute latest tag to ACR
+        run: task -v distribute
+        env:
+          IMAGE_TAG: latest
       - name: Deploy to Container Apps
-        run: |
-          az containerapp update \
-            --name todo-app \
-            --resource-group rg-todo-app \
-            --image labworksacr.azurecr.io/todo-app:${{ github.sha }}
+        run: task -v deploy
+        env:
+          IMAGE_TAG: ${{ github.sha }}
