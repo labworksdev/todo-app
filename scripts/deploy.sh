@@ -43,8 +43,17 @@ docker push "${ACR}.azurecr.io/${IMAGE}:${TAG}"
 
 echo ""
 
-# Step 5: Update the container app
-echo "[5/5] Updating Container App..."
+# Step 5: Verify image in ACR
+echo "[5/6] Verifying image exists in ACR..."
+if ! az acr repository show-tags --name "$ACR" --repository "$IMAGE" --filter "$TAG" --output tsv | grep -q "$TAG"; then
+  echo "ERROR: Image ${ACR}.azurecr.io/${IMAGE}:${TAG} not found in ACR" >&2
+  exit 1
+fi
+
+echo ""
+
+# Step 6: Update the container app
+echo "[6/6] Updating Container App..."
 az containerapp update \
   --name "$APP" \
   --resource-group "$RG" \

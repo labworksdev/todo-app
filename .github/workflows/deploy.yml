@@ -48,6 +48,8 @@ jobs:
           docker tag labworksdev/todo-app:latest labworksacr.azurecr.io/todo-app:latest
           docker push labworksacr.azurecr.io/todo-app:${{ github.sha }}
           docker push labworksacr.azurecr.io/todo-app:latest
+      - name: Verify image in ACR
+        run: az acr repository show-tags --name labworksacr --repository todo-app --filter "${{ github.sha }}" --output tsv | grep -q "${{ github.sha }}"
       - name: Deploy to Container Apps
         run: |
           az containerapp update \
