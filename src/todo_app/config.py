@@ -40,16 +40,18 @@ def create_arg_parser() -> ArgumentParser:
     return parser
 
 
-def get_args_config() -> dict:
+def get_args_config(args: dict | None = None) -> dict:
     """Turn parse arguments into a config"""
+    if args is not None:
+        return args
     parser = create_arg_parser()
     return vars(parser.parse_args())
 
 
-def setup_logging() -> logging.Logger:
+def setup_logging(args: dict | None = None) -> logging.Logger:
     """Setup logging"""
     logging.basicConfig(level="WARNING", format=constants.LOG_FORMAT)
     log = logging.getLogger(__project_name__)
-    configuration = get_args_config()
+    configuration = get_args_config(args)
     logging.getLogger().setLevel(configuration["loglevel"])
     return log

@@ -3,21 +3,18 @@
 todo-app script entrypoint
 """
 
-import argparse
 import os
 import subprocess
 import sys
 
-from todo_app import __version__, config
+from todo_app import config
 
 
 def main():
     """Main entry point for the application."""
-    parser = argparse.ArgumentParser(
-        prog="todo_app",
-        description="An application for managing TODOs",
-    )
-    parser.add_argument("--version", action="version", version=__version__)
+    parser = config.create_arg_parser()
+    parser.prog = "todo_app"
+    parser.description = "An application for managing TODOs"
     parser.add_argument(
         "--dev",
         action="store_true",
@@ -25,7 +22,7 @@ def main():
     )
     args = parser.parse_args()
 
-    log = config.setup_logging()
+    log = config.setup_logging(vars(args))
     log.debug("Logging initialized with level: %s", log.level)
 
     port = int(os.environ.get("PORT", "8000"))
