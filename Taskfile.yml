@@ -237,7 +237,7 @@ tasks:
       - rm -f sbom.*.json
       - rm -f vulns.*.json
       - rm -f license-check.*.json
-      - rm -f labworksdev_todo_app_*_*.tar
+      - rm -f labworksdev_todo?app_*_*.tar
       - find . -type d -name __pycache__ -exec rm -rf {} + || true
       - find . -type f -name '*.pyc' -delete || true
 

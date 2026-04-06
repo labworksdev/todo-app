@@ -45,11 +45,14 @@ ENV PATH="/app/.venv/bin:$PATH"
 
 WORKDIR "/app"
 
+# Create app user before COPY so --chown resolves correctly
+RUN groupadd -r app && useradd -r -g app app
+
 # Copy the virtual environment from builder
 COPY --from=builder --chown=app:app /app /app
 
-# Create app user
-RUN groupadd -r app && useradd -r -g app app
+# Ensure app user can write to /app (WORKDIR creates it as root)
+RUN chown app:app /app
 
 # Metadata
 ARG NAME="todo_app"
