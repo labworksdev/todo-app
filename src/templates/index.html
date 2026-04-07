@@ -2,29 +2,61 @@
 <html>
 <head>
     <title>Todo App</title>
+    <style>
+        body { font-family: sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; }
+        .priority-high { background-color: #ffd6d6; }
+        .priority-medium { background-color: #fff9d6; }
+        .priority-low { background-color: #d6f5d6; }
+        .badge-high { color: #c0392b; font-weight: bold; }
+        .badge-medium { color: #b7950b; font-weight: bold; }
+        .badge-low { color: #1e8449; font-weight: bold; }
+        .controls { margin: 10px 0; display: flex; gap: 10px; align-items: center; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
+        th { background: #f0f0f0; }
+    </style>
 </head>
 <body>
     <h1>Todo App</h1>
 
     <form action="/add" method="POST">
-        <input type="text" name="title" placeholder="Add a todo">
+        <input type="text" name="title" placeholder="Add a todo" required>
+        <select name="priority">
+            <option value="high">High</option>
+            <option value="medium" selected>Medium</option>
+            <option value="low">Low</option>
+        </select>
         <button type="submit">Add</button>
     </form>
 
     <hr>
 
+    <div class="controls">
+        <strong>Filter:</strong>
+        <a href="/?sort={{ sort_by }}">All</a>
+        <a href="/?priority=high&sort={{ sort_by }}">High</a>
+        <a href="/?priority=medium&sort={{ sort_by }}">Medium</a>
+        <a href="/?priority=low&sort={{ sort_by }}">Low</a>
+        &nbsp;|&nbsp;
+        <strong>Sort:</strong>
+        <a href="/?priority={{ filter_priority }}&sort=created_at">Date</a>
+        <a href="/?priority={{ filter_priority }}&sort=priority">Priority</a>
+    </div>
+
     {% if todos %}
-    <table border="1" cellpadding="5">
+    <table>
         <tr>
             <th>ID</th>
             <th>Task</th>
+            <th>Priority</th>
             <th>Status</th>
             <th>Actions</th>
         </tr>
         {% for todo in todos %}
-        <tr>
+        <tr class="priority-{{ todo.priority }}">
             <td>{{ todo.id }}</td>
             <td>{{ todo.title }}</td>
+            <td><span class="badge-{{ todo.priority }}">{{ todo.priority | capitalize }}</span></td>
             <td>{{ "Done" if todo.completed else "Open" }}</td>
             <td>
                 <a href="/toggle/{{ todo.id }}">[toggle]</a>
