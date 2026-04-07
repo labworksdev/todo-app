@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Todo App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tokens.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <style>
+        .login-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 360px;
+        }
+        .login-card h1 {
+            margin-bottom: var(--space-1);
+        }
+        .login-card .subtitle {
+            color: var(--color-text-muted);
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--space-6);
+        }
+        .field {
+            margin-bottom: var(--space-4);
+        }
+        .field label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--space-1);
+        }
+        .error-msg {
+            color: var(--color-danger);
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--space-4);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-wrap">
+        <div class="login-card card">
+            <h1>Todo App</h1>
+            <p class="subtitle">Sign in to manage your todos.</p>
+
+            {% if error %}
+            <p class="error-msg">{{ error }}</p>
+            {% endif %}
+
+            <form action="/login" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="field">
+                    <label for="username">Username</label>
+                    <input class="input" id="username" type="text" name="username"
+                           placeholder="Enter username" autocomplete="username"
+                           required minlength="1" autofocus>
+                </div>
+                <div class="field">
+                    <label for="password">Password</label>
+                    <input class="input" id="password" type="password" name="password"
+                           placeholder="Enter password" autocomplete="current-password"
+                           required minlength="12">
+                    <p style="font-size: var(--font-size-sm); color: var(--color-text-muted); margin-top: var(--space-1);">
+                        Minimum 12 characters required.
+                    </p>
+                </div>
+                <button class="btn btn-primary" type="submit" style="width: 100%;">Sign in</button>
+            </form>
+            <p style="font-size: var(--font-size-sm); color: var(--color-text-muted); margin-top: var(--space-4); text-align: center;">
+                Accounts are locked for 15&nbsp;minutes after 5 failed attempts.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

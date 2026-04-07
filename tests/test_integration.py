@@ -111,8 +111,15 @@ def test_docker_image():
         pyproject_data = tomllib.load(f)
         version = pyproject_data.get("project", {}).get("version", "0.0.0")
 
+    # Test environment variables required by the app
+    test_env = {
+        "SECRET_KEY": "test-secret-key-do-not-use-in-production",
+        "ADMIN_USERNAME": "admin",
+        "ADMIN_PASSWORD_HASH": "600000:test:test",
+    }
+
     try:
-        # Test that --help works with version tag
+        # Test that --help works with version tag (no env vars needed for --help)
         subprocess.run(
             ["docker", "run", "--rm", f"{image_name}:{version}", "--help"],
             capture_output=True,
@@ -120,7 +127,7 @@ def test_docker_image():
             cwd=project_root,
         )
 
-        # Test that --help works with latest tag
+        # Test that --help works with latest tag (no env vars needed for --help)
         subprocess.run(
             ["docker", "run", "--rm", f"{image_name}:latest", "--help"],
             capture_output=True,
@@ -131,7 +138,15 @@ def test_docker_image():
         # Test basic docker run without arguments (should start the server)
         try:
             process = subprocess.run(
-                ["docker", "run", "--rm", f"{image_name}:latest"],
+                [
+                    "docker",
+                    "run",
+                    "--rm",
+                    "-e", f"SECRET_KEY={test_env['SECRET_KEY']}",
+                    "-e", f"ADMIN_USERNAME={test_env['ADMIN_USERNAME']}",
+                    "-e", f"ADMIN_PASSWORD_HASH={test_env['ADMIN_PASSWORD_HASH']}",
+                    f"{image_name}:latest",
+                ],
                 capture_output=True,
                 cwd=project_root,
                 timeout=5,

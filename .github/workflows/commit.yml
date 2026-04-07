@@ -17,6 +17,8 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v6
@@ -32,6 +34,8 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
