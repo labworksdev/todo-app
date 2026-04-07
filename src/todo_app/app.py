@@ -11,10 +11,10 @@ import sqlite3
 from pathlib import Path
 from typing import Callable
 
-logger = logging.getLogger(__name__)
-
 from flask import Flask, redirect, render_template, request, session, url_for
 from itsdangerous import BadSignature, URLSafeSerializer
+
+logger = logging.getLogger(__name__)
 
 _secret_key = os.environ.get("SECRET_KEY")
 if not _secret_key:
@@ -87,9 +87,9 @@ def _check_rate_limit(ip: str) -> bool:
     if entry is None:
         return True
     failures, lockout_until = entry
-    if failures >= _LOGIN_MAX_ATTEMPTS and datetime.datetime.utcnow() < lockout_until:
+    if failures >= _LOGIN_MAX_ATTEMPTS and datetime.datetime.now(datetime.timezone.utc) < lockout_until:
         return False
-    if datetime.datetime.utcnow() >= lockout_until:
+    if datetime.datetime.now(datetime.timezone.utc) >= lockout_until:
         # Lockout expired — reset the counter.
         del _failed_logins[ip]
     return True
@@ -99,7 +99,7 @@ def _record_failed_login(ip: str) -> None:
     """Increment the failure counter for an IP and set a lockout if the limit is reached."""
     entry = _failed_logins.get(ip)
     failures = (entry[0] if entry else 0) + 1
-    lockout_until = datetime.datetime.utcnow() + datetime.timedelta(minutes=_LOGIN_LOCKOUT_MINUTES)
+    lockout_until = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=_LOGIN_LOCKOUT_MINUTES)
     _failed_logins[ip] = (failures, lockout_until)
 
 
@@ -176,13 +176,13 @@ def _get_authorized_todo(conn: sqlite3.Connection, todo_id: int) -> sqlite3.Row 
     Returns None on any failure so callers never learn why access was denied.
     """
     if not _is_valid_admin_session():
-        logger.warning("Unauthorized access attempt on todo %s: invalid session", todo_id)
+        logger.warning("Unauthorized access attempt on todo %s", todo_id)
         return None
     # Defence-in-depth: re-verify the session username in constant time immediately
     # before the DB query, independent of the _is_valid_admin_session() check above.
     username = session.get("username", "")
     if not _constant_time_equal(username, ADMIN_USERNAME):
-        logger.warning("Unauthorized access attempt on todo %s: username mismatch", todo_id)
+        logger.warning("Unauthorized access attempt on todo %s", todo_id)
         return None
     todo = conn.execute(
         "SELECT * FROM todos WHERE id = ? AND owner = ?", (todo_id, username)
@@ -190,7 +190,7 @@ def _get_authorized_todo(conn: sqlite3.Connection, todo_id: int) -> sqlite3.Row 
     # Explicitly verify the returned row's owner matches the session user —
     # defence-in-depth against any unexpected result from the database layer.
     if todo is None or not _constant_time_equal(todo["owner"], username):
-        logger.warning("Unauthorized access attempt on todo %s: ownership check failed", todo_id)
+        logger.warning("Unauthorized access attempt on todo %s", todo_id)
         return None
     return todo
 

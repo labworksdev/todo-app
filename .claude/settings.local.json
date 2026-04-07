@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh auth:*)",
+      "Bash(git remote:*)",
+      "Bash(gh issue:*)",
+      "mcp__zenable__conformance_check",
+      "Bash(git -C c:/Users/student/code/todo-app checkout -b feature/issue-13-color-theme)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(git config:*)",
+      "Bash(git commit -m 'feat\\(ui\\): implement color theme and security hardening \\(#13\\):*)",
+      "Bash(docker info:*)",
+      "Bash(.venv/Scripts/python.exe -mpre_commit run --all-files)"
+    ]
+  }
+}

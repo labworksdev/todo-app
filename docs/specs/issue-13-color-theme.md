@@ -6,7 +6,7 @@ Implement a professional color palette and consistent typography across the todo
 
 ## Background
 
-**Issue**: [#13 Color Theme](../../issues/13)
+**Issue**: [#13 Color Theme](https://github.com/labworksdev/todo-app/issues/13)
 **Labels**: `tier-1`, `ui-ux`, `sprint-1`, `demo9`
 **Assignee**: demo9-labworksdev
 
@@ -113,7 +113,7 @@ All buttons: `border-radius: 6px`, `padding: 0.5rem 1rem`, `font-weight: medium`
 - [ ] All color and typography values sourced from CSS custom properties
 - [ ] Page title, section headings, body text, and muted text are visually distinct
 - [ ] Primary, secondary, and danger button variants are implemented and used consistently
-- [ ] Input fields have visible focus states meeting WCAG 2.1 AA contrast requirements
+- [ ] Input fields have visible focus states meeting <!-- cspell: ignore WCAG -->WCAG 2.1 AA contrast requirements
 - [ ] Links are distinguishable from body text without relying solely on color
 - [ ] No hardcoded hex values or font names outside of `tokens.css`
 
@@ -122,4 +122,4 @@ All buttons: `border-radius: 6px`, `padding: 0.5rem 1rem`, `font-weight: medium`
 ## References
 
 - [ARCHITECTURE.md](../ARCHITECTURE.md) — project structure
-- [WCAG 2.1 AA contrast guidelines](https://www.w3.org/TR/WCAG21/#contrast-minimum)
+- [<!-- cspell: ignore WCAG -->WCAG 2.1 AA contrast guidelines](https://www.w3.org/TR/WCAG21/#contrast-minimum)
