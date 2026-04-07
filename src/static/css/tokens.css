@@ -1,0 +1,44 @@
+/* Design tokens — single source of truth for all colors and typography */
+:root {
+    /* Colors */
+    --color-primary:       #2563EB;
+    --color-primary-hover: #1D4ED8;
+    --color-secondary:     #64748B;
+    --color-success:       #16A34A;
+    --color-danger:        #DC2626;
+    --color-warning:       #D97706;
+    --color-bg:            #F8FAFC;
+    --color-surface:       #FFFFFF;
+    --color-border:        #E2E8F0;
+    --color-text:          #1E293B;
+    --color-text-muted:    #94A3B8;
+    --color-white:         #FFFFFF;
+    --color-primary-focus: rgba(37, 99, 235, 0.2);
+    --color-danger-hover:  #B91C1C;
+    --color-success-bg:    #DCFCE7;
+    --color-badge-open-bg: #F1F5F9;
+
+    /* Typography */
+    --font-family:         Inter, system-ui, sans-serif;
+    --font-size-sm:        0.875rem;
+    --font-size-base:      1rem;
+    --font-size-lg:        1.125rem;
+    --font-size-xl:        1.25rem;
+    --font-size-2xl:       1.5rem;
+    --font-weight-normal:  400;
+    --font-weight-medium:  500;
+    --font-weight-bold:    700;
+    --line-height-body:    1.6;
+    --line-height-heading: 1.2;
+
+    /* Spacing */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+
+    /* Radius */
+    --radius: 6px;
+}

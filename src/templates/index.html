@@ -1,40 +1,79 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todo App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tokens.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
 </head>
 <body>
-    <h1>Todo App</h1>
+    <div class="container">
+        <header class="page-header" style="display: flex; align-items: flex-start; justify-content: space-between;">
+            <div>
+                <h1>Todo App</h1>
+                <p>Keep track of what needs to get done.</p>
+            </div>
+            <form action="/logout" method="POST" style="display:inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-secondary btn-sm" type="submit">Sign out</button>
+            </form>
+        </header>
 
-    <form action="/add" method="POST">
-        <input type="text" name="title" placeholder="Add a todo">
-        <button type="submit">Add</button>
-    </form>
+        <div class="card">
+            <form action="/add" method="POST" class="add-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input class="input" type="text" name="title" placeholder="Add a new todo…" autocomplete="off">
+                <button class="btn btn-primary" type="submit">Add</button>
+            </form>
+        </div>
 
-    <hr>
-
-    {% if todos %}
-    <table border="1" cellpadding="5">
-        <tr>
-            <th>ID</th>
-            <th>Task</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-        {% for todo in todos %}
-        <tr>
-            <td>{{ todo.id }}</td>
-            <td>{{ todo.title }}</td>
-            <td>{{ "Done" if todo.completed else "Open" }}</td>
-            <td>
-                <a href="/toggle/{{ todo.id }}">[toggle]</a>
-                <a href="/delete/{{ todo.id }}">[delete]</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% else %}
-    <p>No todos yet.</p>
-    {% endif %}
+        <div class="card">
+            {% if todos %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Task</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for todo in todos %}
+                    <tr>
+                        <td style="color: var(--color-text-muted); font-size: var(--font-size-sm);">{{ todo.id }}</td>
+                        <td>{{ todo.title }}</td>
+                        <td>
+                            {% if todo.completed %}
+                            <span class="badge badge-success">Done</span>
+                            {% else %}
+                            <span class="badge badge-open">Open</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="actions">
+                                <form action="/toggle/{{ todo.id }}" method="POST" style="display:inline;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button class="btn btn-secondary btn-sm" type="submit">
+                                        {% if todo.completed %}Reopen{% else %}Complete{% endif %}
+                                    </button>
+                                </form>
+                                <form action="/delete/{{ todo.id }}" method="POST" style="display:inline;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="empty-state">No todos yet — add one above.</p>
+            {% endif %}
+        </div>
+    </div>
 </body>
 </html>
