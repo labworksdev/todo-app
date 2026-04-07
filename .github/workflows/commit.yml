@@ -27,8 +27,17 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           python-version: ${{ env.python_version }}
-      - name: Run pre-commit
-        run: task -v lint
+      - name: Run linting
+        run: time task -v lint
+        env:
+          SKIP: lychee-docker,actionlint-docker
+      - name: Lint GitHub Actions workflows
+        uses: raven-actions/actionlint@v2
+      - name: Check links with lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --config .github/linters/lychee.toml "**/*.md"
+          fail: true
   test:
     name: Test
     runs-on: ubuntu-24.04
@@ -52,7 +61,7 @@ jobs:
       - name: Validate the repo
         run: task -v validate
       - name: Set up QEMU for cross-platform emulation
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
       - name: Build the image(s)
         run: task -v build
         env:
