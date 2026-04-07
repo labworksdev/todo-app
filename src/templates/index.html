@@ -79,6 +79,7 @@
             </td>
             <td>{{ "Done" if todo.completed else "Open" }}</td>
             <td>
+                {# Actions are only rendered when the server has confirmed this session owns this todo #}
                 {% if todo.is_owner %}
                 <form method="POST" action="/toggle/{{ todo.id }}" style="display:inline">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
