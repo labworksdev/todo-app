@@ -223,7 +223,12 @@ def authorize_todo(todo_id: int, conn: sqlite3.Connection, action: str) -> None:
     if not _OWNER_ID_RE.match(owner_id):
         abort(403)
     todo = conn.execute("SELECT owner_id FROM todos WHERE id = ?", (todo_id,)).fetchone()
-    if todo is None or todo["owner_id"] != owner_id:
+    if todo is None:
+        abort(403)
+    # Validate the stored owner_id format as a defence-in-depth measure
+    if not _OWNER_ID_RE.match(todo["owner_id"]):
+        abort(403)
+    if todo["owner_id"] != owner_id:
         abort(403)
 
 
@@ -247,7 +252,10 @@ def index() -> str:
 
     conn.close()
     todos = get_todos_with_tags(owner_id, filter_tag_id)
-    return render_template("index.html", todos=todos, all_tags=all_tags, active_tag=filter_tag_id, current_owner_id=owner_id)
+    # Resolve authorization server-side so the template never compares raw IDs
+    for todo in todos:
+        todo["is_owner"] = _OWNER_ID_RE.match(todo["owner_id"]) is not None and todo["owner_id"] == owner_id
+    return render_template("index.html", todos=todos, all_tags=all_tags, active_tag=filter_tag_id)
 
 
 @app.route("/add", methods=["POST"])
