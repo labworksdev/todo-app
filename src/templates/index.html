@@ -2,33 +2,91 @@
 <html>
 <head>
     <title>Todo App</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .tag-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            color: white;
+            font-size: 0.75em;
+            margin-right: 4px;
+        }
+        .tag-filter { margin: 12px 0; }
+        .tag-filter a {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 16px;
+            margin-right: 6px;
+            text-decoration: none;
+            color: white;
+            font-size: 0.85em;
+        }
+        .tag-filter a.all { background: #6B7280; }
+        .tag-filter a.active { outline: 3px solid #000; }
+        .tag-checkboxes { margin: 8px 0; }
+        .tag-checkboxes label { margin-right: 10px; font-size: 0.9em; }
+        td { vertical-align: middle; }
+        .completed td { text-decoration: line-through; color: #9CA3AF; }
+    </style>
 </head>
 <body>
     <h1>Todo App</h1>
 
     <form action="/add" method="POST">
-        <input type="text" name="title" placeholder="Add a todo">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="text" name="title" placeholder="Add a todo" style="width:300px">
+        <div class="tag-checkboxes">
+            {% for tag in all_tags %}
+            <label>
+                <input type="checkbox" name="tags" value="{{ tag.id }}">
+                <span class="tag-badge" style="background:{{ tag.color }}">{{ tag.name }}</span>
+            </label>
+            {% endfor %}
+        </div>
         <button type="submit">Add</button>
     </form>
 
     <hr>
+
+    <div class="tag-filter">
+        <strong>Filter:</strong>
+        <a href="/" class="all {% if active_tag is none %}active{% endif %}">All</a>
+        {% for tag in all_tags %}
+        <a href="/?tag={{ tag.id }}"
+           style="background:{{ tag.color }}"
+           class="{% if active_tag == tag.id %}active{% endif %}">{{ tag.name }}</a>
+        {% endfor %}
+    </div>
 
     {% if todos %}
     <table border="1" cellpadding="5">
         <tr>
             <th>ID</th>
             <th>Task</th>
+            <th>Tags</th>
             <th>Status</th>
             <th>Actions</th>
         </tr>
         {% for todo in todos %}
-        <tr>
+        <tr class="{{ 'completed' if todo.completed else '' }}">
             <td>{{ todo.id }}</td>
             <td>{{ todo.title }}</td>
+            <td>
+                {% for tag in todo.tags %}
+                <span class="tag-badge" style="background:{{ tag.color }}">{{ tag.name }}</span>
+                {% endfor %}
+            </td>
             <td>{{ "Done" if todo.completed else "Open" }}</td>
             <td>
-                <a href="/toggle/{{ todo.id }}">[toggle]</a>
-                <a href="/delete/{{ todo.id }}">[delete]</a>
+                <form method="POST" action="/toggle/{{ todo.id }}" style="display:inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit">[toggle]</button>
+                </form>
+                <form method="POST" action="/delete/{{ todo.id }}" style="display:inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit">[delete]</button>
+                </form>
             </td>
         </tr>
         {% endfor %}
