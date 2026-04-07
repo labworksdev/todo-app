@@ -79,8 +79,10 @@
                     input.disabled = true;
                     var formData = new FormData();
                     formData.append('title', newTitle);
+                    var responseStatus = null;
                     fetch('/edit/' + todoId, { method: 'PATCH', body: formData, credentials: 'same-origin' })
                         .then(function(res) {
+                            responseStatus = res.status;
                             if (res.ok) return res.json();
                             throw new Error('Save failed');
                         })
@@ -88,6 +90,11 @@
                             cell.textContent = data.title;
                         })
                         .catch(function() {
+                            if (responseStatus === 404) {
+                                alert('This todo no longer exists — it may have been deleted in another tab. Click OK to remove it from the list.');
+                                cell.closest('tr').remove();
+                                return;
+                            }
                             cell.style.color = 'red';
                             input.disabled = false;
                             input.focus();

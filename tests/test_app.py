@@ -66,6 +66,15 @@ def test_edit_todo_empty_title(client):
 
 
 @pytest.mark.unit
+def test_edit_todo_not_found(client):
+    """Test that editing a non-existent todo returns 404."""
+    response = client.patch("/edit/999", data={"title": "Ghost edit"})
+    assert response.status_code == 404
+    data = response.get_json()
+    assert "error" in data
+
+
+@pytest.mark.unit
 def test_edit_todo_persists(client):
     """Test that editing a todo persists the new title."""
     client.post("/add", data={"title": "Old title"})

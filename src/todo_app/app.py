@@ -70,9 +70,11 @@ def edit(todo_id: int) -> str:
     if not title:
         return jsonify({"error": "Title cannot be empty"}), 400
     conn = get_db()
-    conn.execute("UPDATE todos SET title = ? WHERE id = ?", (title, todo_id))
+    cursor = conn.execute("UPDATE todos SET title = ? WHERE id = ?", (title, todo_id))
     conn.commit()
     conn.close()
+    if cursor.rowcount == 0:
+        return jsonify({"error": "Todo not found"}), 404
     return jsonify({"title": title})
 
 
