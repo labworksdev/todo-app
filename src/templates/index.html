@@ -79,6 +79,7 @@
             </td>
             <td>{{ "Done" if todo.completed else "Open" }}</td>
             <td>
+                {% if todo.owner_id == current_owner_id %}
                 <form method="POST" action="/toggle/{{ todo.id }}" style="display:inline">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit">[toggle]</button>
@@ -87,6 +88,7 @@
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit">[delete]</button>
                 </form>
+                {% endif %}
             </td>
         </tr>
         {% endfor %}

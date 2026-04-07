@@ -247,7 +247,7 @@ def index() -> str:
 
     conn.close()
     todos = get_todos_with_tags(owner_id, filter_tag_id)
-    return render_template("index.html", todos=todos, all_tags=all_tags, active_tag=filter_tag_id)
+    return render_template("index.html", todos=todos, all_tags=all_tags, active_tag=filter_tag_id, current_owner_id=owner_id)
 
 
 @app.route("/add", methods=["POST"])
