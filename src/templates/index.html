@@ -2,33 +2,52 @@
 <html>
 <head>
     <title>Todo App</title>
+    <style>
+        .overdue { color: red; }
+    </style>
 </head>
 <body>
     <h1>Todo App</h1>
+    <p><small>Signed in as: <strong>{{ username }}</strong> &mdash; you can only view and modify your own todos.</small></p>
 
     <form action="/add" method="POST">
-        <input type="text" name="title" placeholder="Add a todo">
+        <input type="text" name="title" placeholder="Add a todo" required>
+        <input type="date" name="due_date">
         <button type="submit">Add</button>
     </form>
 
     <hr>
 
     {% if todos %}
+    <p>
+        Sort by:
+        <a href="/?sort=created_at">Created date</a> |
+        <a href="/?sort=due_date">Due date</a>
+    </p>
     <table border="1" cellpadding="5">
         <tr>
             <th>ID</th>
             <th>Task</th>
+            <th>Due Date</th>
             <th>Status</th>
             <th>Actions</th>
         </tr>
         {% for todo in todos %}
-        <tr>
+        {% set overdue = todo.due_date and todo.due_date < today and not todo.completed %}
+        <tr{% if overdue %} class="overdue"{% endif %}>
             <td>{{ todo.id }}</td>
             <td>{{ todo.title }}</td>
+            <td>{{ todo.due_date if todo.due_date else "—" }}</td>
             <td>{{ "Done" if todo.completed else "Open" }}</td>
             <td>
+                <!-- Server enforces ownership: only todos belonging to the authenticated user are shown and actions are verified server-side -->
                 <a href="/toggle/{{ todo.id }}">[toggle]</a>
                 <a href="/delete/{{ todo.id }}">[delete]</a>
+                <form action="/edit/{{ todo.id }}" method="POST" style="display:inline">
+                    <input type="text" name="title" value="{{ todo.title }}" required>
+                    <input type="date" name="due_date" value="{{ todo.due_date if todo.due_date else '' }}">
+                    <button type="submit">[save]</button>
+                </form>
             </td>
         </tr>
         {% endfor %}
