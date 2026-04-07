@@ -2,6 +2,23 @@
 <html>
 <head>
     <title>Todo App</title>
+    <style>
+        .editable-title {
+            cursor: pointer;
+            border-bottom: 1px dashed #aaa;
+        }
+        .editable-title:hover {
+            background-color: #f0f0f0;
+        }
+        .editable-title input {
+            font-size: inherit;
+            font-family: inherit;
+            border: 1px solid #666;
+            padding: 1px 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
 </head>
 <body>
     <h1>Todo App</h1>
@@ -24,7 +41,7 @@
         {% for todo in todos %}
         <tr>
             <td>{{ todo.id }}</td>
-            <td>{{ todo.title }}</td>
+            <td class="editable-title" data-todo-id="{{ todo.id }}" title="Click to edit">{{ todo.title }}</td>
             <td>{{ "Done" if todo.completed else "Open" }}</td>
             <td>
                 <a href="/toggle/{{ todo.id }}">[toggle]</a>
@@ -36,5 +53,68 @@
     {% else %}
     <p>No todos yet.</p>
     {% endif %}
+
+    <script>
+        document.querySelectorAll('.editable-title').forEach(function(cell) {
+            cell.addEventListener('click', function() {
+                if (cell.querySelector('input')) return;
+
+                var originalText = cell.textContent.trim();
+                var todoId = cell.dataset.todoId;
+
+                var input = document.createElement('input');
+                input.type = 'text';
+                input.value = originalText;
+                cell.textContent = '';
+                cell.appendChild(input);
+                input.focus();
+                input.select();
+
+                function save() {
+                    var newTitle = input.value.trim();
+                    if (!newTitle || newTitle === originalText) {
+                        cell.textContent = originalText;
+                        return;
+                    }
+                    input.disabled = true;
+                    var formData = new FormData();
+                    formData.append('title', newTitle);
+                    var responseStatus = null;
+                    fetch('/edit/' + todoId, { method: 'PATCH', body: formData, credentials: 'same-origin' })
+                        .then(function(res) {
+                            responseStatus = res.status;
+                            if (res.ok) return res.json();
+                            throw new Error('Save failed');
+                        })
+                        .then(function(data) {
+                            cell.textContent = data.title;
+                        })
+                        .catch(function() {
+                            if (responseStatus === 404) {
+                                alert('This todo no longer exists — it may have been deleted in another tab. Click OK to remove it from the list.');
+                                cell.closest('tr').remove();
+                                return;
+                            }
+                            cell.style.color = 'red';
+                            input.disabled = false;
+                            input.focus();
+                            setTimeout(function() { cell.style.color = ''; }, 2000);
+                        });
+                }
+
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        input.removeEventListener('blur', save);
+                        save();
+                    } else if (e.key === 'Escape') {
+                        input.removeEventListener('blur', save);
+                        cell.textContent = originalText;
+                    }
+                });
+
+                input.addEventListener('blur', save);
+            });
+        });
+    </script>
 </body>
 </html>

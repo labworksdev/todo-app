@@ -4,7 +4,7 @@ import os
 import sqlite3
 from pathlib import Path
 
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, jsonify, redirect, render_template, request, url_for
 
 app = Flask(__name__, template_folder=str(Path(__file__).parent.parent / "templates"))
 DATABASE = os.environ.get("DATABASE_PATH", "todos.db")
@@ -61,6 +61,21 @@ def toggle(todo_id: int) -> str:
     conn.commit()
     conn.close()
     return redirect(url_for("index"))
+
+
+@app.route("/edit/<int:todo_id>", methods=["PATCH"])
+def edit(todo_id: int) -> str:
+    """Edit a todo's title."""
+    title = request.form.get("title", "").strip()
+    if not title:
+        return jsonify({"error": "Title cannot be empty"}), 400
+    conn = get_db()
+    cursor = conn.execute("UPDATE todos SET title = ? WHERE id = ?", (title, todo_id))
+    conn.commit()
+    conn.close()
+    if cursor.rowcount == 0:
+        return jsonify({"error": "Todo not found"}), 404
+    return jsonify({"title": title})
 
 
 @app.route("/delete/<int:todo_id>")
