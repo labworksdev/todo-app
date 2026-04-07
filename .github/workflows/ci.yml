@@ -16,35 +16,23 @@ defaults:
     shell: 'bash --noprofile --norc -Eeuo pipefail {0}'
 
 jobs:
-  test:
-    name: Test
+  unit-test:
+    name: Unit Test
     runs-on: ubuntu-24.04
-    permissions:
-      contents: write
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v6
         with:
           persist-credentials: 'false'
-      - name: Bootstrap repository
-        uses: ./.github/actions/bootstrap
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          enable-cache: true
+          cache-dependency-glob: "**/uv.lock"
           python-version: ${{ env.python_version }}
-      - name: Set up QEMU for cross-platform emulation
-        uses: docker/setup-qemu-action@v3
-      - name: Install license compliance tool
-        run: |
-          mkdir -p "${RUNNER_TEMP}/bin"
-          # Install grant via curl until official Docker image is available
-          # See: https://github.com/anchore/grant/issues/222
-          curl -sSfL https://raw.githubusercontent.com/anchore/grant/main/install.sh | sh -s -- -b "${RUNNER_TEMP}/bin"
-          chmod +x "${RUNNER_TEMP}/bin/grant"
-          echo "${RUNNER_TEMP}/bin" | tee -a "${GITHUB_PATH}"
-      - name: Build Docker image
-        run: task -v build
-      - name: Run tests
-        run: task -v test
+      - name: Run unit tests
+        run: time uv run --frozen pytest -m unit tests/
+
   lint:
     name: Lint
     runs-on: ubuntu-24.04
@@ -59,9 +47,22 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           python-version: ${{ env.python_version }}
       - name: Run linting
-        run: task -v lint
+        # Docker-based hooks (lychee-docker, actionlint-docker) are skipped here
+        # and run natively below — avoids Docker image pulls in pre-commit which
+        # cannot be cached effectively on GitHub-hosted runners.
+        run: time task -v lint
+        env:
+          SKIP: lychee-docker,actionlint-docker
+      - name: Lint GitHub Actions workflows
+        uses: raven-actions/actionlint@v2
+      - name: Check links with lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --config .github/linters/lychee.toml "**/*.md"
+          fail: true
       - name: Validate configuration
         run: task -v validate
+
   build:
     name: Build
     runs-on: ubuntu-24.04
@@ -81,9 +82,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           python-version: ${{ env.python_version }}
       - name: Set up QEMU for cross-platform emulation
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
       - name: Build Docker image
-        run: task -v build
+        run: time task -v build
         env:
           PLATFORM: ${{ matrix.platform }}
       - name: Install license compliance tool
@@ -127,6 +128,7 @@ jobs:
           name: vulns-${{ env.SANITIZED_PLATFORM }}
           path: vulns.*.json
           if-no-files-found: error
+
   finalizer:
     # This gives us something to set as required in the repo settings. Some projects use dynamic fan-outs using matrix strategies and the fromJSON function, so
     # you can't hard-code what _should_ run vs not. Having a finalizer simplifies that so you can just check that the finalizer succeeded, and if so, your
@@ -135,7 +137,7 @@ jobs:
     name: Finalize the pipeline
     runs-on: ubuntu-24.04
     # Keep this aligned with the above jobs
-    needs: [lint, test, build]
+    needs: [lint, unit-test, build]
     if: always()  # Ensure it runs even if "needs" fails or is cancelled
     steps:
       - name: Check for failed or cancelled jobs
