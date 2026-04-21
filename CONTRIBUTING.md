@@ -2,45 +2,37 @@
 
 ## Environmental setup
 
-Ensure you have `docker`, `git`, and `uv` installed locally, and the `docker` daemon is running. Then run the following command to finish the repo setup
-locally:
+Prerequisites: `docker` (daemon running), `git`, `uv`
 
 ```bash
 task init
 ```
 
-## Linting locally
+## Common tasks
 
-```bash
-task lint
-```
+| Task | Command |
+|---|---|
+| Lint | `task lint` |
+| Update dependencies | `task update` |
 
-## Updating the dependencies
+## Security guidelines
 
-```bash
-task update
-```
+- **Never log passwords, tokens, or secrets** — log outcomes only (e.g., "Password hashed successfully"), not values.
+- **SECRET_KEY must be set via environment variable in production.** If absent in production, the app must log an error and refuse to start — do NOT silently fall back to an ephemeral random value.
+- **Authorization logic must be fully implemented** — do not stub or skip auth checks.
+- **Enum/constant values** must be sourced from the centralized constants file; do not define or duplicate them inline.
 
 ## Creating a release
 
-Releases are created automatically by python-semantic-release based on conventional commits. The version bump is determined by your commit messages:
+Releases are created automatically by python-semantic-release via the release GitHub Action. Commit message convention:
 
-- `fix:` commits bump patch version (0.0.x)
-- `feat:` commits bump minor version (0.x.0)
-- `BREAKING CHANGE:` in commit body bumps major version (x.0.0)
-
-To create a release, use the release GitHub action:
-
-Example commit messages:
+| Prefix | Version bump | Example |
+|---|---|---|
+| `fix:` | patch (0.0.x) | `fix: resolve user login issue` |
+| `feat:` | minor (0.x.0) | `feat: add user profile page` |
+| `feat!:` + `BREAKING CHANGE:` | major (x.0.0) | see below |
 
 ```bash
-# Patch release (0.0.1 -> 0.0.2)
-git commit -m "fix: resolve user login issue"
-
-# Minor release (0.0.2 -> 0.1.0)
-git commit -m "feat: add user profile page"
-
-# Major release (0.1.0 -> 1.0.0)
 git commit -m "feat!: redesign authentication system
 
 BREAKING CHANGE: The login API now requires a different payload format"
