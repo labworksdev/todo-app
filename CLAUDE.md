@@ -78,46 +78,14 @@ task format             # Auto-format code
 
 ### Best Practices
 
-```python
-# GOOD: Type hints and docstrings
-from typing import List, Optional
+### Best Practices
 
-def process_items(items: List[str], filter_empty: bool = True) -> Optional[List[str]]:
-    """Process a list of items with optional filtering.
-
-    Args:
-        items: List of strings to process.
-        filter_empty: Whether to remove empty strings.
-
-    Returns:
-        Processed list or None if all items filtered.
-
-    Raises:
-        ValueError: If items is not a list.
-    """
-    if not isinstance(items, list):
-        raise ValueError("items must be a list")
-
-    # Implementation here
-    ...
-
-# GOOD: Using pathlib
-from pathlib import Path
-
-config_path = Path(__file__).parent / "config.yml"
-with config_path.open() as f:
-    config = yaml.safe_load(f)
-
-# GOOD: Proper logging
-import logging
-
-logger = logging.getLogger(__name__)
-logger.info("Processing started")
-
-# GOOD: Context managers
-with open("data.txt") as f:
-    data = f.read()
-```
+- Use type hints on all function signatures
+- Use Google-style docstrings for all public APIs
+- Use `pathlib.Path` instead of string paths
+- Use context managers (`with`) for file I/O
+- Use `logging.getLogger(__name__)` for module-level loggers; log outcomes, never sensitive values
+- Python 3.10+ type hints: prefer `list[str]` and `str | None` over `List[str]` and `Optional[str]`
 
 ## Testing Requirements
 
