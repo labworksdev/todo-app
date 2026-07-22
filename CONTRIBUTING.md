@@ -21,6 +21,31 @@ task lint
 task update
 ```
 
+## Testing
+
+Run the test suite before committing:
+
+```bash
+task test
+```
+
+When fixing bugs:
+- Write a failing test that reproduces the issue first
+- Then implement the fix
+- Verify the test passes
+
+## Security
+
+**DO:**
+- Load secrets from environment variables
+- Fail fast if required secrets (SECRET_KEY, API_KEYS) are missing in production
+- Log security events (authentication failures, authorization denials) without sensitive data
+
+**DON'T:**
+- Log passwords, tokens, secrets, or API keys in clear text
+- Fall back to ephemeral/random secrets if environment variables are missing
+- Hardcode credentials in source code
+
 ## Creating a release
 
 Releases are created automatically by python-semantic-release based on conventional commits. The version bump is determined by your commit messages:
