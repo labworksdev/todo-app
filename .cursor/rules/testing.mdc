@@ -17,22 +17,8 @@ pattern: "**/*test*.py"
 - View report: `open htmlcov/index.html`
 
 ## Test Patterns
-```python
-import pytest
-from todo_app.module import function
-
-def test_function_success():
-    """Test successful case."""
-    result = function(valid_input)
-    assert result == expected
-
-def test_function_error():
-    """Test error handling."""
-    with pytest.raises(SpecificError):
-        function(invalid_input)
-
-@pytest.fixture
-def sample_data():
-    """Provide test data."""
-    return {"key": "value"}
-```
+- Test behavior and core logic, not string outputs, logs, or trivial implementation details
+- Write a reproducing test before fixing a bug
+- Prefer small, focused tests over large integration scenarios
+- Use `pytest.raises(SpecificError)` for expected exceptions
+- Use fixtures for shared setup; avoid duplicating setup logic across tests
